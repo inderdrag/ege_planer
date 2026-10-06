@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Финиш — план подготовки к ЕГЭ</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800;900&family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- PWA: делает приложение устанавливаемым на телефон (Добавить на экран)
+       и на компьютер (кнопка "Установить" в адресной строке Chrome/Edge) -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0e1626">
+  <link rel="icon" type="image/png" href="icons/icon-32.png">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="countdown">
+        <div class="countdown__glow"></div>
+        <svg class="countdown__ring" viewBox="0 0 120 120">
+          <defs>
+            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ff8a5b" />
+              <stop offset="55%" stop-color="#ff5d8f" />
+              <stop offset="100%" stop-color="#7c5cfc" />
+            </linearGradient>
+          </defs>
+          <circle class="countdown__ring-track" cx="60" cy="60" r="52" />
+          <circle class="countdown__ring-progress" id="countdownRingProgress" cx="60" cy="60" r="52" />
+        </svg>
+        <div class="countdown__text">
+          <span class="countdown__number" id="countdownNumber">—</span>
+          <span class="countdown__label" id="countdownLabel">дней до старта</span>
+        </div>
+      </div>
+
+      <!-- Дата экзамена — от неё считается счётчик слева -->
+      <div class="hours-control">
+        <label for="examDateInput" class="hours-control__label">Дата экзамена</label>
+        <input type="date" id="examDateInput" class="hours-control__input">
+      </div>
+
+      <!-- Сколько часов в неделю пользователь готов заниматься —
+           от этого числа зависит, сколько минут получит каждое задание -->
+      <div class="hours-control">
+        <label for="hoursInput" class="hours-control__label">Часов в неделю на подготовку</label>
+        <input type="number" id="hoursInput" class="hours-control__input" min="1" max="40" step="1">
+      </div>
+
+      <!-- Таймер занятия (помодоро): работа/перерыв в минутах -->
+      <div class="hours-control">
+        <label class="hours-control__label">Помодоро — работа / перерыв, мин</label>
+        <div class="pomodoro-row">
+          <input type="number" id="pomodoroWork" class="hours-control__input" min="5" max="90" step="5">
+          <input type="number" id="pomodoroBreak" class="hours-control__input" min="1" max="30" step="1">
+        </div>
+      </div>
+
+      <!-- Список предметов рисуется из js/data.js через js/render.js —
+           кликни по предмету, чтобы раскрыть его задания и баллы -->
+      <nav class="subjects" aria-label="Предметы">
+        <div id="subjectsNav"></div>
+        <button class="subject-add" id="addSubjectBtn">+ добавить предмет</button>
+      </nav>
+
+      <!-- Экспорт/импорт всех данных в JSON-файл -->
+      <div class="data-io">
+        <button type="button" id="exportBtn">Экспорт данных</button>
+        <button type="button" id="importBtn">Импорт данных</button>
+        <input type="file" id="importFile" accept="application/json" hidden>
+      </div>
+    </aside>
+
+    <main class="planner">
+      <div class="view-tabs">
+        <button type="button" class="view-tab view-tab--active" id="tabPlan">План</button>
+        <button type="button" class="view-tab" id="tabTemplates">Шпаргалки</button>
+      </div>
+
+      <section id="viewPlan" class="view-panel">
+        <header class="planner__header">
+          <button class="week-nav" id="prevWeek" aria-label="Предыдущая неделя">‹</button>
+          <div class="week-title">
+            <span class="week-title__num" id="weekTitleNum">Неделя</span>
+            <span class="week-title__range" id="weekTitleRange"></span>
+          </div>
+          <button class="week-nav" id="nextWeek" aria-label="Следующая неделя">›</button>
+        </header>
+
+        <!-- Сетка дней рисуется из расписания, которое считает js/schedule.js,
+             с реальными датами текущей недели -->
+        <div class="week-grid" id="weekGrid"></div>
+
+        <!-- Статистика: сколько из запланированного реально отмечено выполненным -->
+        <div class="week-stats" id="weekStats"></div>
+      </section>
+
+      <!-- Вкладка шпаргалок: код/материалы рисуются из js/templates.js по выбранному предмету -->
+      <section id="templatesView" class="view-panel" hidden></section>
+    </main>
+  </div>
+
+  <!-- Плашка таймера занятия — появляется снизу, когда запущен помодоро -->
+  <div id="timerBar" class="timer-bar" hidden></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/dates.js"></script>
+  <script src="js/schedule.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/templates.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- Регистрация service worker — работает только на http(s), на file:// просто тихо пропускается -->
+  <script>
+    if ('serviceWorker' in navigator && (location.protocol === 'http:' || location.protocol === 'https:')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>

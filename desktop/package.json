@@ -1,0 +1,35 @@
+{
+  "name": "ege-planner-desktop",
+  "version": "1.0.0",
+  "description": "Десктопная версия ЕГЭ-планировщика (обёртка на Electron)",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "ru.example.egeplanner",
+    "productName": "Финиш — план ЕГЭ",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "app/**/*"
+    ],
+    "win": {
+      "target": ["nsis", "portable"],
+      "icon": "app/icons/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  }
+}

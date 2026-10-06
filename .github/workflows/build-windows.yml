@@ -1,0 +1,46 @@
+name: Собрать Windows-приложение
+
+# Запускается при каждом пуше в main (и вручную, кнопкой "Run workflow"
+# на вкладке Actions). Node.js на твоём компьютере для этого не нужен —
+# всё происходит на сервере GitHub.
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+# Нужно, чтобы workflow мог сам создавать/обновлять Release в этом репозитории
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Скачать код репозитория
+        uses: actions/checkout@v4
+
+      - name: Поставить Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Установить зависимости Electron
+        working-directory: desktop
+        run: npm install
+
+      - name: Собрать .exe (установщик + portable)
+        working-directory: desktop
+        run: npm run build:win
+
+      - name: Выложить .exe в Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: "Финиш — последняя сборка для Windows"
+          body: |
+            Автоматическая сборка. Скачай один из файлов ниже:
+            - `*Setup*.exe` — обычный установщик (с ярлыком на рабочем столе)
+            - остальной `.exe` без Setup в названии — portable-версия, установка не нужна, просто запусти
+          files: desktop/dist/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
